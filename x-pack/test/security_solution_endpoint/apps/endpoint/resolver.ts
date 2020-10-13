@@ -222,7 +222,7 @@ export default function ({ getPageObjects, getService }: FtrProviderContext) {
         await queryBar.submitQuery();
       });
       after(async () => {
-        await pageObjects.hosts.deleteDataStreams();
+        // await pageObjects.hosts.deleteDataStreams();
       });
 
       it('Check Child events for event.process Node', async () => {
@@ -255,6 +255,21 @@ export default function ({ getPageObjects, getService }: FtrProviderContext) {
           'event.dataset : endpoint.events.network'
         );
         await pageObjects.hosts.runNodeEvents(expectedData);
+      });
+      describe('Resolver Tree events', function () {
+        before(async () => {
+          await esArchiver.load('empty_kibana');
+          await esArchiver.load('endpoint/resolver_tree/test', { useCreate: true });
+          await queryBar.setQuery('');
+          await queryBar.submitQuery();
+        });
+        it('Check Child events for event. Node', async () => {
+          await pageObjects.hosts.navigateToEventsPanel();
+          await pageObjects.hosts.executeQueryAndOpenResolver(
+            'event.dataset : endpoint.events.registry'
+          );
+          await pageObjects.hosts.runNodeEvents(expectedData);
+        });
       });
     });
   });
